@@ -1,0 +1,111 @@
+{
+    email admin@camaja-n8n.com
+}
+
+auth.camaja-n8n.com {
+    log {
+        output stderr
+    }
+    reverse_proxy authelia:9091
+}
+
+camaja-n8n.com {
+    log {
+        output stderr
+    }
+
+    forward_auth authelia:9091 {
+        uri /api/verify?rd=https://auth.camaja-n8n.com/
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+    }
+
+    # n8n routing
+    redir /n8n /n8n/
+    handle_path /n8n* {
+        reverse_proxy n8n:5678
+    }
+
+    # Umami routing
+    handle /stats* {
+        reverse_proxy n8n-umami-1:3000
+    }
+
+    # Freelance Website routing
+    handle /freelance* {
+        reverse_proxy freelance-website:80
+    }
+
+    # Netto Calculator routing
+    handle /netto* {
+        reverse_proxy netto-calculator:80
+    }
+
+    # Sheet Music Player API routing
+    handle /sheet-music-player/api/* {
+        request_body {
+            max_size 100MB
+        }
+        uri strip_prefix /sheet-music-player
+        reverse_proxy sheet-music-backend:8000 {
+            flush_interval -1
+            transport http {
+                response_header_timeout 600s
+                read_timeout 600s
+            }
+        }
+    }
+
+    # Sheet Music Player frontend routing
+    handle /sheet-music-player* {
+        reverse_proxy sheet-music-frontend:80
+    }
+
+    # Freelance CRM routing
+    handle /crm* {
+        reverse_proxy freelance-crm:80
+    }
+
+    # Kellerfeuchte — API
+    handle /feuchtigkeitsagent/api* {
+        uri strip_prefix /feuchtigkeitsagent/api
+        reverse_proxy kellerfeuchte-api:8000 {
+            flush_interval -1
+        }
+    }
+
+    # Kellerfeuchte — root redirect to /projects
+    @feuchtigkeitsagent_root {
+        path /feuchtigkeitsagent /feuchtigkeitsagent/
+    }
+    redir @feuchtigkeitsagent_root /feuchtigkeitsagent/projects temporary
+
+    # Kellerfeuchte — Web frontend
+    handle /feuchtigkeitsagent* {
+        reverse_proxy kellerfeuchte-web:3000
+    }
+
+    # PocketBase routing
+    handle /pb/* {
+        uri strip_prefix /pb
+        reverse_proxy kindertracker-pocketbase-1:8090
+    }
+
+    # Kindertracker routing
+    handle /kinder* {
+        reverse_proxy kindertracker:80
+    }
+
+    # Calorie Tracker routing
+    handle /calorie-tracker* {
+        reverse_proxy calorie-tracker-app:3000
+    }
+
+    # Fallback to Dashboard
+    handle {
+        reverse_proxy homarr:7575
+    }
+}
+
+weisendorf-o-mat.cloud {
+    reverse_proxy weisendorf_caddy:80
+}

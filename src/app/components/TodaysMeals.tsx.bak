@@ -1,0 +1,199 @@
+import { Pool } from 'pg';
+import { headers } from 'next/headers';
+import Link from 'next/link';
+import { DeleteMealButton, EditGramsButton } from './DiaryActions';
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/postgres'
+});
+
+const SLOT_LABELS: Record<string, string> = {
+  breakfast: 'Frühstück',
+  lunch: 'Mittagessen',
+  dinner: 'Abendessen',
+  snack: 'Snack',
+};
+
+const SOURCE_BADGE: Record<string, { label: string; color: string }> = {
+  off: { label: 'OFF', color: 'var(--secondary)' },
+  llm_estimate: { label: 'KI', color: '#b45309' },
+  usda: { label: 'USDA', color: 'var(--tertiary)' },
+  custom: { label: '✎', color: 'var(--outline)' },
+};
+
+export default async function TodaysMeals() {
+  const headersList = await headers();
+  const userId = headersList.get('x-remote-user') || 'local-admin';
+
+  const now = new Date();
+  const startOfDay = new Date(now); startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(now); endOfDay.setHours(23, 59, 59, 999);
+
+  let rows: any[] = [];
+  let totalKcal = 0;
+  let goalKcal = 2000;
+  let dbError = false;
+
+  try {
+    // Load active goal
+    const goalRes = await pool.query(
+      `SELECT kcal FROM goal_profile WHERE user_id = $1 AND valid_from <= $2 ORDER BY valid_from DESC LIMIT 1`,
+      [userId, now]
+    );
+    if (goalRes.rows[0]) goalKcal = goalRes.rows[0].kcal;
+
+    console.log(`[TodaysMeals] Fetching for user: ${userId}, range: ${startOfDay.toISOString()} to ${endOfDay.toISOString()}`);
+    // Load meals + items joined in one query
+    const mealRes = await pool.query(
+      `SELECT
+        m.id as meal_id,
+        m.slot,
+        m.timestamp,
+        m.raw_input,
+        mi.id as item_id,
+        mi.grams,
+        mi.nutrients_snapshot
+       FROM meal m
+       LEFT JOIN meal_item mi ON mi.meal_id = m.id
+       WHERE m.user_id = $1
+         AND m.timestamp >= $2
+         AND m.timestamp <= $3
+       ORDER BY m.timestamp DESC, mi.id ASC`,
+      [userId, startOfDay, endOfDay]
+    );
+
+    rows = mealRes.rows;
+    console.log(`[TodaysMeals] Found ${rows.length} rows (joins included)`);
+    for (const r of rows) {
+      totalKcal += r.nutrients_snapshot?.kcal || 0;
+    }
+  } catch (err) {
+    console.error('TodaysMeals DB error:', err);
+    dbError = true;
+  }
+
+  if (dbError) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-8 text-center">
+        <p className="text-sm text-outline">Fehler beim Laden der Mahlzeiten.</p>
+      </div>
+    );
+  }
+
+  // Group rows by meal_id
+  const mealsMap = new Map<number, {
+    slot: string;
+    timestamp: string;
+    rawInput: string | null;
+    items: { id: number; grams: string; snap: any }[];
+  }>();
+
+  for (const r of rows) {
+    if (!mealsMap.has(r.meal_id)) {
+      mealsMap.set(r.meal_id, {
+        slot: r.slot,
+        timestamp: r.timestamp,
+        rawInput: r.raw_input,
+        items: [],
+      });
+    }
+    if (r.item_id) {
+      mealsMap.get(r.meal_id)!.items.push({
+        id: r.item_id,
+        grams: r.grams,
+        snap: r.nutrients_snapshot,
+      });
+    }
+  }
+
+  const mealList = Array.from(mealsMap.entries());
+
+  if (mealList.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+        <div className="text-4xl">🍽️</div>
+        <p className="text-outline body-lg">Noch keine Mahlzeiten heute.</p>
+        <Link href="/"
+          className="mt-2 px-6 py-3 rounded-full text-sm font-medium text-on-primary"
+          style={{ background: 'var(--primary)' }}>
+          Erste Mahlzeit erfassen
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Day summary */}
+      <div className="flex items-center justify-between px-1">
+        <span className="label-sm text-outline uppercase">Heute gesamt</span>
+        <span className="text-sm font-semibold tabular-nums">
+          {Math.round(totalKcal).toLocaleString('de-DE')} / {goalKcal.toLocaleString('de-DE')} kcal
+        </span>
+      </div>
+
+      {/* Meal cards */}
+      {mealList.map(([mealId, meal]) => {
+        const mealKcal = meal.items.reduce((s, i) => s + (i.snap?.kcal || 0), 0);
+        const mealProtein = meal.items.reduce((s, i) => s + (i.snap?.protein_g || 0), 0);
+        const timeStr = new Date(meal.timestamp).toLocaleTimeString('de-DE', {
+          hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin'
+        });
+
+        return (
+          <div key={mealId}
+            className="bg-surface-container-lowest shadow-ambient rounded-2xl p-4 flex flex-col gap-3">
+            {/* Meal header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium px-2 py-1 rounded-full"
+                  style={{ background: 'var(--surface-container)', color: 'var(--on-surface)' }}>
+                  {SLOT_LABELS[meal.slot] || meal.slot}
+                </span>
+                <span className="label-sm text-outline">{timeStr}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="text-right">
+                  <span className="text-base font-semibold tabular-nums">{Math.round(mealKcal)} kcal</span>
+                  <span className="label-sm text-outline block">{mealProtein.toFixed(0)}g Protein</span>
+                </div>
+                <DeleteMealButton mealId={mealId} />
+              </div>
+            </div>
+
+            {/* Items list */}
+            {meal.items.length > 0 && (
+              <div className="flex flex-col gap-2 border-t pt-3" style={{ borderColor: 'var(--surface-container)' }}>
+                {meal.items.map((item) => {
+                  const sourceKey = item.snap?._source || 'off';
+                  const badge = SOURCE_BADGE[sourceKey] || SOURCE_BADGE.off;
+                  const name = item.snap?._name || `Unbenanntes Produkt`;
+                  return (
+                    <div key={item.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                          style={{ background: badge.color + '20', color: badge.color }}>
+                          {badge.label}
+                        </span>
+                        <span className="text-sm truncate max-w-[140px] sm:max-w-[none]">{name}</span>
+                        <EditGramsButton itemId={item.id} currentGrams={parseFloat(item.grams)} />
+                      </div>
+                      <span className="text-sm tabular-nums text-outline">{Math.round(item.snap?.kcal || 0)} kcal</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+
+            {/* Raw input if no items parsed */}
+            {meal.items.length === 0 && meal.rawInput && (
+              <p className="text-xs text-outline italic">{meal.rawInput}</p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+

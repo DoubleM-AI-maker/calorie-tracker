@@ -1,0 +1,146 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--surface);
+  --color-foreground: var(--on-surface);
+  --font-sans: var(--font-inter);
+  
+  --color-surface: var(--surface);
+  --color-on-surface: var(--on-surface);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-bright: var(--surface-bright);
+
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+
+  /* Mapping for shadcn to use our design system colors */
+  --color-card: var(--surface-container-lowest);
+  --color-card-foreground: var(--on-surface);
+  --color-popover: var(--surface-bright);
+  --color-popover-foreground: var(--on-surface);
+  --color-muted: var(--surface-container-low);
+  --color-muted-foreground: var(--outline);
+  --color-border: transparent; /* No lines rule from design system */
+  --color-input: var(--surface-container-low);
+  --color-ring: var(--outline);
+  
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: calc(var(--radius) * 1.5); /* 1rem, Custom override for Squircles */
+  --radius-xl: calc(var(--radius) * 2.25); /* 1.5rem, Custom override for Squircles */
+  --radius-2xl: calc(var(--radius) * 3);
+  --radius-full: 9999px;
+}
+
+:root {
+  /* Precision Atelier Design System (Light Mode preferred initially) */
+  --surface: #faf9fe;
+  --surface-bright: #faf9fe;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f4f3f8;
+  --surface-container: #eeeeee;
+  --surface-container-high: #e5e5e5;
+  --surface-container-highest: #dddddd;
+  
+  --on-surface: #1a1b1f;
+  
+  --primary: #bc000a;
+  --primary-container: #e2241f;
+  --on-primary: #ffffff;
+  
+  --secondary: #006e28; /* Positive metrics */
+  --on-secondary: #ffffff;
+  
+  --tertiary: #0058bc; /* Hydration/Water */
+  --on-tertiary: #ffffff;
+
+  --outline: #926f6a;
+  --outline-variant: #e7bdb7;
+
+  --radius: 0.625rem;
+}
+
+.dark {
+  --surface: #0a0a0c;
+  --surface-bright: #121215;
+  --surface-container-lowest: #1a1a1d;
+  --surface-container-low: #222226;
+  --surface-container: #2b2b31;
+  --surface-container-high: #35353c;
+  --surface-container-highest: #404048;
+  
+  --on-surface: #e4e4e7;
+  
+  --primary: #ff4d4d; /* Slightly brighter for dark mode */
+  --primary-container: #8c0007;
+  --on-primary: #ffffff;
+  
+  --secondary: #4ade80;
+  --on-secondary: #003912;
+  
+  --tertiary: #60a5fa;
+  --on-tertiary: #002d5f;
+
+  --outline: #a08c89;
+  --outline-variant: #4a3f3d;
+}
+
+@layer base {
+  * {
+    /* Apply ghost border as fallback occasionally, but mostly transparent */
+    @apply outline-ring/30;
+  }
+  body {
+    @apply bg-surface text-on-surface;
+    /* Soft ambient shadow base */
+  }
+  html {
+    @apply font-sans;
+  }
+  
+  /* Typography Scale from Editorial requirements */
+  h1, .display-lg {
+    @apply text-[3.5rem] leading-tight font-semibold tracking-tight;
+  }
+  h2, .headline-lg {
+    @apply text-2xl leading-snug font-medium tracking-tight;
+  }
+  h3, .title-md {
+    @apply text-lg leading-snug font-medium;
+  }
+  p, .body-lg {
+    @apply text-base leading-relaxed;
+  }
+  small, .label-sm {
+    @apply text-[0.6875rem] uppercase tracking-wider font-medium;
+  }
+}
+
+@layer utilities {
+  .shadow-ambient {
+    box-shadow: 0 4px 40px -4px rgba(26, 27, 31, 0.06);
+  }
+  .glass {
+    @apply bg-surface-bright/80 backdrop-blur-[20px];
+  }
+  .gradient-primary {
+    @apply bg-gradient-to-br from-primary to-primary-container text-on-primary;
+  }
+}

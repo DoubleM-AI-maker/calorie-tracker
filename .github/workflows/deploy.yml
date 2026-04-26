@@ -1,0 +1,33 @@
+name: Deploy to VPS
+on:
+  push:
+    branches: [main]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          source: ".,!node_modules,!.git,!dist"
+          target: /opt/calorie-tracker
+          overwrite: true
+          rm: true
+
+      - name: Build and restart container
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            cd /opt/calorie-tracker
+            docker compose build --no-cache
+            docker compose up -d

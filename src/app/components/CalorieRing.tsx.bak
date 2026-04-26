@@ -1,0 +1,154 @@
+'use client';
+
+import Link from 'next/link';
+
+interface CalorieRingProps {
+  consumed: number;
+  goal: number;
+  protein: number;
+  proteinGoal: number;
+  carbs: number;
+  carbsGoal: number;
+  fat: number;
+  fatGoal: number;
+}
+
+export default function CalorieRing({
+  consumed,
+  goal,
+  protein,
+  proteinGoal,
+  carbs,
+  carbsGoal,
+  fat,
+  fatGoal,
+}: CalorieRingProps) {
+  const remaining = Math.max(goal - consumed, 0);
+  const overBudget = consumed > goal;
+  const progress = Math.min(consumed / goal, 1);
+
+  // SVG ring math
+  const size = 220;
+  const strokeWidth = 14;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference * (1 - progress);
+
+  const macroBarPercent = (val: number, total: number) =>
+    Math.min((val / total) * 100, 100);
+
+  return (
+    <div className="flex flex-col items-center gap-8">
+      {/* Calorie Ring */}
+      <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+        {/* Track */}
+        <svg
+          width={size}
+          height={size}
+          className="absolute rotate-[-90deg]"
+          style={{ overflow: 'visible' }}
+        >
+          {/* Background track */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="var(--surface-container)"
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+          />
+          {/* Progress arc */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={overBudget ? '#e2241f' : 'var(--primary)'}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={dashOffset}
+            style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}
+          />
+        </svg>
+
+        {/* Center text — clickable link to diary */}
+        <Link href="/tagebuch" className="flex flex-col items-center gap-1 z-10 group">
+          <span className="label-sm text-outline group-hover:text-primary transition-colors">VERBLEIBEND</span>
+          <span
+            className="font-semibold tracking-tight leading-none tabular-nums"
+            style={{ fontSize: '2.75rem', color: overBudget ? 'var(--primary)' : 'var(--on-surface)' }}
+          >
+            {remaining.toLocaleString('de-DE')}
+          </span>
+          <div className="flex items-center gap-3 mt-1">
+            <div className="text-center">
+              <span className="label-sm text-outline block">GEGESSEN</span>
+              <span className="text-sm font-semibold tabular-nums">{consumed.toLocaleString('de-DE')}</span>
+            </div>
+            <div className="w-px h-6 bg-outline-variant" />
+            <div className="text-center">
+              <span className="label-sm block" style={{ color: 'var(--secondary)' }}>ZIEL</span>
+              <span className="text-sm font-semibold tabular-nums" style={{ color: 'var(--secondary)' }}>
+                {goal.toLocaleString('de-DE')}
+              </span>
+            </div>
+          </div>
+          <span className="text-xs text-outline mt-1 opacity-60 group-hover:opacity-100 transition-opacity">↗ Details</span>
+        </Link>
+      </div>
+
+      {/* Macro bars */}
+      <div className="w-full grid grid-cols-3 gap-6">
+        {/* Protein */}
+        <div className="flex flex-col gap-2">
+          <span className="label-sm text-outline">PROTEIN</span>
+          <span className="text-xl font-semibold">{protein.toFixed(0)}g</span>
+          <div className="h-1.5 rounded-full overflow-hidden bg-surface-container">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${macroBarPercent(protein, proteinGoal)}%`,
+                backgroundColor: 'var(--secondary)',
+              }}
+            />
+          </div>
+          <span className="text-xs text-outline">von {proteinGoal}g</span>
+        </div>
+
+        {/* Carbs */}
+        <div className="flex flex-col gap-2">
+          <span className="label-sm text-outline">KOHLENH.</span>
+          <span className="text-xl font-semibold">{carbs.toFixed(0)}g</span>
+          <div className="h-1.5 rounded-full overflow-hidden bg-surface-container">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${macroBarPercent(carbs, carbsGoal)}%`,
+                backgroundColor: 'var(--tertiary)',
+              }}
+            />
+          </div>
+          <span className="text-xs text-outline">von {carbsGoal}g</span>
+        </div>
+
+        {/* Fat */}
+        <div className="flex flex-col gap-2">
+          <span className="label-sm text-outline">FETT</span>
+          <span className="text-xl font-semibold">{fat.toFixed(0)}g</span>
+          <div className="h-1.5 rounded-full overflow-hidden bg-surface-container">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${macroBarPercent(fat, fatGoal)}%`,
+                backgroundColor: 'var(--primary)',
+              }}
+            />
+          </div>
+          <span className="text-xs text-outline">von {fatGoal}g</span>
+        </div>
+      </div>
+    </div>
+  );
+}
