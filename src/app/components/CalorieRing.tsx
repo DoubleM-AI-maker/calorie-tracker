@@ -120,7 +120,7 @@ export default function CalorieRing({
         {/* Protein */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="label-sm text-outline truncate">🥩 PROTEIN</span>
+            <span className="label-sm text-outline truncate" style={{ color: 'var(--tertiary)' }}>🥩 PROTEIN</span>
           </div>
           <span className={`text-xl font-semibold tabular-nums ${protein > proteinGoal ? 'text-primary' : ''}`}>
             {protein.toFixed(0)}g
@@ -130,7 +130,7 @@ export default function CalorieRing({
               className="h-full rounded-full transition-all duration-700"
               style={{
                 width: `${macroBarPercent(protein, proteinGoal)}%`,
-                backgroundColor: protein > proteinGoal ? 'var(--primary)' : 'var(--secondary)',
+                backgroundColor: protein > proteinGoal ? 'var(--primary)' : 'var(--tertiary)',
               }}
             />
           </div>
@@ -170,7 +170,7 @@ export default function CalorieRing({
         {/* Fat */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="label-sm text-outline truncate" style={{ color: 'var(--primary)' }}>🥑 FETT</span>
+            <span className="label-sm text-outline truncate" style={{ color: '#0d9488' }}>🥑 FETT</span>
           </div>
           <span className={`text-xl font-semibold tabular-nums ${fat > fatGoal ? 'text-primary' : ''}`}>
             {fat.toFixed(0)}g
@@ -180,7 +180,7 @@ export default function CalorieRing({
               className="h-full rounded-full transition-all duration-700"
               style={{
                 width: `${macroBarPercent(fat, fatGoal)}%`,
-                backgroundColor: 'var(--primary)',
+                backgroundColor: fat > fatGoal ? 'var(--primary)' : '#0d9488',
               }}
             />
           </div>

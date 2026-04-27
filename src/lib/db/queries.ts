@@ -1,5 +1,6 @@
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
+import { cache } from 'react';
 import { getBerlinDayRange } from '../date';
 
 export interface RawMealItem {
@@ -24,7 +25,7 @@ export interface RawMeal {
  * Fetches all meals for a user within a specific Berlin day range, 
  * including all nested items using raw SQL for maximum reliability.
  */
-export async function getMealsForDayRaw(userId: string, date?: Date | string): Promise<RawMeal[]> {
+export const getMealsForDayRaw = cache(async (userId: string, date?: Date | string): Promise<RawMeal[]> => {
   const { start, end } = getBerlinDayRange(date);
   
   console.log(`[Queries] Fetching meals for ${userId} between ${start.toISOString()} and ${end.toISOString()}`);
@@ -73,12 +74,12 @@ export async function getMealsForDayRaw(userId: string, date?: Date | string): P
   }
 
   return Array.from(mealsMap.values());
-}
+});
 
 /**
  * Fetches nutrition stats for a specific day and the active goal profile.
  */
-export async function getStatsForDayRaw(userId: string, date?: Date | string) {
+export const getStatsForDayRaw = cache(async (userId: string, date?: Date | string) => {
   const { start, end } = getBerlinDayRange(date);
   const now = date ? new Date(date) : new Date();
 
@@ -119,7 +120,7 @@ export async function getStatsForDayRaw(userId: string, date?: Date | string) {
       fat_g: Number(consumed.fat_g)
     }
   };
-}
+});
 
 /**
  * Fetches daily aggregates for a period, mapped to the respective goal profiles.

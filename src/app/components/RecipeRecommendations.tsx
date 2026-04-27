@@ -177,15 +177,15 @@ export default function RecipeRecommendations({ remaining }: Props) {
                     <span className="text-sm font-bold">{recipe.kcal}</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="label-sm text-[9px] text-secondary">🥩 Protein</span>
+                    <span className="label-sm text-[9px]" style={{ color: 'var(--tertiary)' }}>🥩 Protein</span>
                     <span className="text-sm font-bold">{recipe.protein_g}g</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="label-sm text-[9px] text-primary">🥑 Fett</span>
+                    <span className="label-sm text-[9px]" style={{ color: '#0d9488' }}>🥑 Fett</span>
                     <span className="text-sm font-bold">{recipe.fat_g}g</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="label-sm text-[9px] text-amber-600">🥖 Carbs</span>
+                    <span className="label-sm text-[9px]" style={{ color: '#d97706' }}>🥖 Carbs</span>
                     <span className="text-sm font-bold">{recipe.carbs_g}g</span>
                   </div>
                 </div>

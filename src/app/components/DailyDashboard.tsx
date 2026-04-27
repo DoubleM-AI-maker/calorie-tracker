@@ -20,7 +20,8 @@ export default async function DailyDashboard({ date }: { date?: string }) {
   let goalCarbs = DEFAULT_GOAL.carbs_g;
   let goalFat = DEFAULT_GOAL.fat_g;
 
-  let now = date ? new Date(date) : new Date(); // Only for display / comparison
+  // Robust date parsing for display to prevent jumping to the previous day in Berlin timezone
+  let now = date ? new Date(`${date}T12:00:00Z`) : new Date(); // Use noon UTC for display
 
   try {
     const { goal, consumed: stats } = await getStatsForDayRaw(userId, date);
