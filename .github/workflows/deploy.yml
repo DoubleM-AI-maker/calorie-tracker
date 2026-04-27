@@ -28,11 +28,5 @@ jobs:
           port: 22
           script: |
             cd /opt/calorie-tracker
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" > .env
-            echo "MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}" >> .env
-            echo "MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}" >> .env
-            echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
-            echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
-            echo "NODE_ENV=production" >> .env
             docker compose build --no-cache
             docker compose up -d

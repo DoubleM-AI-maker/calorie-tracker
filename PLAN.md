@@ -47,4 +47,9 @@ calorie-tracker/
 1. **VPS Subfolder / Base Path**: Unter welchem genauen Pfad wird die App gehostet? Die Specs sprechen allgemein vom Setup `camaja-n8n.com/my-app`. Soll die Base Path für diese App `/kalorie-tracker` oder etwas anderes lauten?
 2. **Open Food Facts (OFF)**: Zitat Spec: *"JSONL-Dump oder laufende API-Abfragen"*. Da die OFF Datenbank extrem groß ist, würde ich für den Anfang **laufende API-Abfragen via REST** vorschlagen. Lokales Caching in unsere DB findet statt, sobald ein Produkt 1x aufgelöst wurde. Ist das in Ordnung oder bevorzugst du einen kompletten Bulk-Download?
 3. **Local Dev Authentifizierung**: Für lokales Developement entwickle ich eine Fallback-Middleware, die simulierte Authelia-Header (`Remote-User`, `Remote-Groups`) setzt, solange `NODE_ENV === 'development'`. Einverstanden? 
-4. **App-Subdomain vs. Subfolder**: Die `AGENT_VPS_INSTRUCTIONS.md` redet von Subfolder (`/my-app`), aber in `kalorie-tracker-spec.md` (Zeile 5) steht: *"Subdomain hinter Authelia"*. Wird es `kalorie.camaja-n8n.com` oder `camaja-n8n.com/kalorie`? Das ist fundamental wichtig für das Next.js `basePath` Flag.
+
+## 4. Deployment-Strategie (Neu)
+- **Repository**: [https://github.com/DoubleM-AI-maker/calorie-tracker](https://github.com/DoubleM-AI-maker/calorie-tracker)
+- **CI/CD**: GitHub Actions (`.github/workflows/deploy.yml`)
+- **Secrets**: Werden über GitHub Repository Secrets verwaltet (`HOST`, `USERNAME`, `SSH_KEY`).
+- **Sicherheit**: `.env` Dateien und lokale Test-Skripte mit API-Keys sind über `.gitignore` ausgeschlossen. Direkte VPS-Deployments wurden durch den GitHub-Workflow ersetzt.
