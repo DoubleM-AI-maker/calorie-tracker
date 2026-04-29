@@ -196,12 +196,12 @@ export default function CalorieRing({
           </div>
         </div>
 
-        {/* Fiber */}
+        {/* Fiber — exceeding goal is positive, stays green */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="label-sm truncate" style={{ color: '#16a34a' }}>🥬 BALLASTSTOFFE</span>
           </div>
-          <span className={`text-xl font-semibold tabular-nums ${fiber > fiberGoal ? 'text-primary' : ''}`}>
+          <span className="text-xl font-semibold tabular-nums" style={{ color: fiber >= fiberGoal ? '#16a34a' : undefined }}>
             {fiber.toFixed(0)}g
           </span>
           <div className="h-1.5 rounded-full overflow-hidden bg-surface-container">
@@ -209,14 +209,14 @@ export default function CalorieRing({
               className="h-full rounded-full transition-all duration-700"
               style={{
                 width: `${macroBarPercent(fiber, fiberGoal)}%`,
-                backgroundColor: fiber > fiberGoal ? 'var(--primary)' : '#16a34a',
+                backgroundColor: '#16a34a',
               }}
             />
           </div>
           <div className="flex justify-between items-center">
             <span className="text-[10px] text-outline tabular-nums">von {fiberGoal}g</span>
-            {fiber > fiberGoal && (
-               <span className="text-[10px] text-primary font-bold">+{Math.round(fiber - fiberGoal)}g</span>
+            {fiber >= fiberGoal && (
+               <span className="text-[10px] font-bold" style={{ color: '#16a34a' }}>✓ Ziel erreicht!</span>
             )}
           </div>
         </div>
