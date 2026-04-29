@@ -37,7 +37,7 @@ export default async function FavoritesSection() {
         <span className="label-sm text-outline">{userFavorites.length} gesamt</span>
       </div>
       
-      <div className="flex overflow-x-auto gap-3 pb-4 no-scrollbar -mx-2 px-2">
+      <div className="flex flex-col gap-2 pb-2">
         {userFavorites.map((fav) => (
           <FavoriteItem key={fav.id} favorite={fav} />
         ))}
