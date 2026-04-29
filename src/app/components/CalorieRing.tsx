@@ -11,6 +11,8 @@ interface CalorieRingProps {
   carbsGoal: number;
   fat: number;
   fatGoal: number;
+  fiber: number;
+  fiberGoal: number;
 }
 
 export default function CalorieRing({
@@ -22,6 +24,8 @@ export default function CalorieRing({
   carbsGoal,
   fat,
   fatGoal,
+  fiber,
+  fiberGoal,
 }: CalorieRingProps) {
   const diff = goal - consumed;
   const isOver = consumed > goal;
@@ -115,12 +119,12 @@ export default function CalorieRing({
         </Link>
       </div>
 
-      {/* Macro bars */}
-      <div className="w-full grid grid-cols-3 gap-6">
+      {/* Macro bars — 2×2 grid */}
+      <div className="w-full grid grid-cols-2 gap-x-8 gap-y-5">
         {/* Protein */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="label-sm text-outline truncate" style={{ color: 'var(--tertiary)' }}>🥩 PROTEIN</span>
+            <span className="label-sm truncate" style={{ color: 'var(--tertiary)' }}>🥩 PROTEIN</span>
           </div>
           <span className={`text-xl font-semibold tabular-nums ${protein > proteinGoal ? 'text-primary' : ''}`}>
             {protein.toFixed(0)}g
@@ -145,7 +149,7 @@ export default function CalorieRing({
         {/* Carbs */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="label-sm text-outline truncate" style={{ color: '#d97706' }}>🥖 CARBS</span>
+            <span className="label-sm truncate" style={{ color: '#d97706' }}>🥖 CARBS</span>
           </div>
           <span className={`text-xl font-semibold tabular-nums ${carbs > carbsGoal ? 'text-primary' : ''}`}>
             {carbs.toFixed(0)}g
@@ -170,7 +174,7 @@ export default function CalorieRing({
         {/* Fat */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="label-sm text-outline truncate" style={{ color: '#0d9488' }}>🥑 FETT</span>
+            <span className="label-sm truncate" style={{ color: '#0d9488' }}>🥑 FETT</span>
           </div>
           <span className={`text-xl font-semibold tabular-nums ${fat > fatGoal ? 'text-primary' : ''}`}>
             {fat.toFixed(0)}g
@@ -188,6 +192,31 @@ export default function CalorieRing({
             <span className="text-[10px] text-outline tabular-nums">von {fatGoal}g</span>
             {fat > fatGoal && (
                <span className="text-[10px] text-primary font-bold">+{Math.round(fat - fatGoal)}g</span>
+            )}
+          </div>
+        </div>
+
+        {/* Fiber */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="label-sm truncate" style={{ color: '#16a34a' }}>🥬 BALLASTSTOFFE</span>
+          </div>
+          <span className={`text-xl font-semibold tabular-nums ${fiber > fiberGoal ? 'text-primary' : ''}`}>
+            {fiber.toFixed(0)}g
+          </span>
+          <div className="h-1.5 rounded-full overflow-hidden bg-surface-container">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${macroBarPercent(fiber, fiberGoal)}%`,
+                backgroundColor: fiber > fiberGoal ? 'var(--primary)' : '#16a34a',
+              }}
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] text-outline tabular-nums">von {fiberGoal}g</span>
+            {fiber > fiberGoal && (
+               <span className="text-[10px] text-primary font-bold">+{Math.round(fiber - fiberGoal)}g</span>
             )}
           </div>
         </div>

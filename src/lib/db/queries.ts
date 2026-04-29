@@ -101,7 +101,8 @@ export const getStatsForDayRaw = cache(async (userId: string, date?: Date | stri
       COALESCE(SUM((mi.nutrients_snapshot->>'kcal')::numeric), 0) as kcal,
       COALESCE(SUM((mi.nutrients_snapshot->>'protein_g')::numeric), 0) as protein_g,
       COALESCE(SUM((mi.nutrients_snapshot->>'carbs_g')::numeric), 0) as carbs_g,
-      COALESCE(SUM((mi.nutrients_snapshot->>'fat_g')::numeric), 0) as fat_g
+      COALESCE(SUM((mi.nutrients_snapshot->>'fat_g')::numeric), 0) as fat_g,
+      COALESCE(SUM((mi.nutrients_snapshot->>'fiber_g')::numeric), 0) as fiber_g
     FROM meal m
     JOIN meal_item mi ON m.id = mi.meal_id
     WHERE m.user_id = ${userId}
@@ -109,7 +110,7 @@ export const getStatsForDayRaw = cache(async (userId: string, date?: Date | stri
       AND m.timestamp <= ${end.toISOString()}
   `);
 
-  const consumed = consumedRes.rows[0] as any || { kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
+  const consumed = consumedRes.rows[0] as any || { kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0, fiber_g: 0 };
 
   return {
     goal,
@@ -117,7 +118,8 @@ export const getStatsForDayRaw = cache(async (userId: string, date?: Date | stri
       kcal: Number(consumed.kcal),
       protein_g: Number(consumed.protein_g),
       carbs_g: Number(consumed.carbs_g),
-      fat_g: Number(consumed.fat_g)
+      fat_g: Number(consumed.fat_g),
+      fiber_g: Number(consumed.fiber_g)
     }
   };
 });
@@ -139,7 +141,8 @@ export async function getHistoryStatsRaw(userId: string, days: number) {
       COALESCE(SUM((mi.nutrients_snapshot->>'kcal')::numeric), 0) as kcal,
       COALESCE(SUM((mi.nutrients_snapshot->>'protein_g')::numeric), 0) as protein_g,
       COALESCE(SUM((mi.nutrients_snapshot->>'carbs_g')::numeric), 0) as carbs_g,
-      COALESCE(SUM((mi.nutrients_snapshot->>'fat_g')::numeric), 0) as fat_g
+      COALESCE(SUM((mi.nutrients_snapshot->>'fat_g')::numeric), 0) as fat_g,
+      COALESCE(SUM((mi.nutrients_snapshot->>'fiber_g')::numeric), 0) as fiber_g
     FROM meal m
     JOIN meal_item mi ON m.id = mi.meal_id
     WHERE m.user_id = ${userId}
@@ -191,10 +194,12 @@ export async function getHistoryStatsRaw(userId: string, days: number) {
       protein_g: stat ? Number(stat.protein_g) : 0,
       carbs_g: stat ? Number(stat.carbs_g) : 0,
       fat_g: stat ? Number(stat.fat_g) : 0,
+      fiber_g: stat ? Number(stat.fiber_g) : 0,
       goalKcal: goal?.kcal || 2000,
       goalProtein: goal?.protein_g || 150,
       goalCarbs: goal?.carbs_g || 230,
-      goalFat: goal?.fat_g || 65
+      goalFat: goal?.fat_g || 65,
+      goalFiber: goal?.fiber_g || 40
     });
   }
 

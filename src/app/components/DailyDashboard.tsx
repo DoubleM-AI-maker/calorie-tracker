@@ -8,17 +8,18 @@ import { getBerlinDayRange } from '@/lib/date';
 import { getStatsForDayRaw } from '@/lib/db/queries';
 
 // Default fallback goal if no goal profile is set yet
-const DEFAULT_GOAL = { kcal: 2000, protein_g: 150, fat_g: 65, carbs_g: 230 };
+const DEFAULT_GOAL = { kcal: 2000, protein_g: 150, fat_g: 65, carbs_g: 230, fiber_g: 40 };
 
 export default async function DailyDashboard({ date }: { date?: string }) {
   const userId = await getUserId();
   const { start, end, dateStr } = getBerlinDayRange(date);
 
-  let consumed = { kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
+  let consumed = { kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0, fiber_g: 0 };
   let goalKcal = DEFAULT_GOAL.kcal;
   let goalProtein = DEFAULT_GOAL.protein_g;
   let goalCarbs = DEFAULT_GOAL.carbs_g;
   let goalFat = DEFAULT_GOAL.fat_g;
+  let goalFiber = DEFAULT_GOAL.fiber_g;
 
   // Robust date parsing for display to prevent jumping to the previous day in Berlin timezone
   let now = date ? new Date(`${date}T12:00:00Z`) : new Date(); // Use noon UTC for display
@@ -32,6 +33,7 @@ export default async function DailyDashboard({ date }: { date?: string }) {
       goalProtein = goal.protein_g; 
       goalCarbs = goal.carbs_g;
       goalFat = goal.fat_g;
+      goalFiber = goal.fiber_g ?? DEFAULT_GOAL.fiber_g;
     }
   } catch (err) {
     console.error('DailyDashboard DB error:', err);
@@ -48,6 +50,7 @@ export default async function DailyDashboard({ date }: { date?: string }) {
     protein_g: Math.max(0, goalProtein - consumed.protein_g),
     fat_g: Math.max(0, goalFat - consumed.fat_g),
     carbs_g: Math.max(0, goalCarbs - consumed.carbs_g),
+    fiber_g: Math.max(0, goalFiber - consumed.fiber_g),
   };
 
   return (
@@ -68,6 +71,8 @@ export default async function DailyDashboard({ date }: { date?: string }) {
           carbsGoal={goalCarbs}
           fat={consumed.fat_g}
           fatGoal={goalFat}
+          fiber={consumed.fiber_g}
+          fiberGoal={goalFiber}
         />
 
         {/* No-goal hint */}

@@ -16,7 +16,7 @@ export default function GoalForm({ initial }: { initial?: GoalProfile }) {
   const [protein, setProtein] = useState(initial?.proteinG || 150);
   const [fat, setFat] = useState(initial?.fatG || 65);
   const [carbs, setCarbs] = useState(initial?.carbsG || 200);
-  const [fiber, setFiber] = useState(initial?.fiberG || 30);
+  const [fiber, setFiber] = useState(initial?.fiberG || 40);
   
   const [mode, setMode] = useState<'grams' | 'percent'>('grams');
   const [isPending, startTransition] = useTransition();
