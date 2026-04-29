@@ -45,10 +45,12 @@ export default async function DayMeals({ date }: { date?: string }) {
   let totalProtein = 0;
   let totalCarbs = 0;
   let totalFat = 0;
+  let totalFiber = 0;
   let goalKcal = 2000;
   let goalProtein = 150;
   let goalCarbs = 230;
   let goalFat = 65;
+  let goalFiber = 40;
   let dbError = false;
   let mealList: RawMeal[] = [];
 
@@ -59,12 +61,14 @@ export default async function DayMeals({ date }: { date?: string }) {
       goalProtein = goal.protein_g || 150;
       goalCarbs = goal.carbs_g || 230;
       goalFat = goal.fat_g || 65;
+      goalFiber = goal.fiber_g ?? 40;
     }
     
     totalKcal = consumed.kcal;
     totalProtein = consumed.protein_g;
     totalCarbs = consumed.carbs_g;
     totalFat = consumed.fat_g;
+    totalFiber = consumed.fiber_g;
 
     mealList = await getMealsForDayRaw(userId, date);
 
@@ -75,12 +79,12 @@ export default async function DayMeals({ date }: { date?: string }) {
 
   const remainingKcal = Math.max(0, goalKcal - totalKcal);
 
-  // Helper for progress bar color
   const getMacroColor = (macro: string) => {
     switch(macro) {
-      case 'protein': return 'var(--secondary)'; // Green
-      case 'carbs': return 'var(--primary)';    // Red
-      case 'fat': return 'var(--tertiary)';     // Blue
+      case 'protein': return 'var(--tertiary)';  // Blue
+      case 'carbs': return '#d97706';             // Amber
+      case 'fat': return '#0d9488';               // Teal
+      case 'fiber': return '#16a34a';             // Green
       default: return 'var(--outline)';
     }
   };
@@ -124,16 +128,17 @@ export default async function DayMeals({ date }: { date?: string }) {
           </div>
         </div>
 
-        {/* Macro Bars */}
-        <div className="grid grid-cols-3 gap-6">
+        {/* Macro Bars — 2×2 grid */}
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
           {[
-            { label: '🥩 PROTEIN', value: totalProtein, color: getMacroColor('protein'), target: goalProtein },
-            { label: '🥖 CARBS', value: totalCarbs, color: getMacroColor('carbs'), target: goalCarbs },
-            { label: '🥑 FAT', value: totalFat, color: getMacroColor('fat'), target: goalFat },
+            { label: '🥩 PROTEIN', value: totalProtein, color: getMacroColor('protein'), target: goalProtein, positive: false },
+            { label: '🥖 CARBS',   value: totalCarbs,   color: getMacroColor('carbs'),   target: goalCarbs,   positive: false },
+            { label: '🥑 FETT',    value: totalFat,     color: getMacroColor('fat'),     target: goalFat,     positive: false },
+            { label: '🥬 BALLASTSTOFFE', value: totalFiber, color: getMacroColor('fiber'), target: goalFiber, positive: true },
           ].map((macro) => (
             <div key={macro.label} className="flex flex-col gap-2">
               <div className="flex justify-between items-end">
-                <span className="text-[10px] font-bold text-outline/80 tracking-wide">{macro.label}</span>
+                <span className="text-[10px] font-bold tracking-wide" style={{ color: macro.color }}>{macro.label}</span>
                 <span className="text-xs font-bold tabular-nums">{Math.round(macro.value)}g</span>
               </div>
               <div className="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
@@ -141,9 +146,18 @@ export default async function DayMeals({ date }: { date?: string }) {
                   className="h-full transition-all duration-500 ease-out rounded-full"
                   style={{ 
                     width: `${Math.min(100, (macro.value / macro.target) * 100)}%`,
-                    backgroundColor: macro.color 
+                    backgroundColor: (!macro.positive && macro.value > macro.target) ? 'var(--primary)' : macro.color
                   }}
                 />
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] text-outline tabular-nums">von {macro.target}g</span>
+                {macro.positive && macro.value >= macro.target && (
+                  <span className="text-[10px] font-bold" style={{ color: macro.color }}>✓ Erreicht!</span>
+                )}
+                {!macro.positive && macro.value > macro.target && (
+                  <span className="text-[10px] font-bold text-primary">+{Math.round(macro.value - macro.target)}g</span>
+                )}
               </div>
             </div>
           ))}
@@ -204,10 +218,13 @@ export default async function DayMeals({ date }: { date?: string }) {
                               />
                             )}
                           </div>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 flex-wrap">
                              <span className="text-[11px] font-bold" style={{ color: getMacroColor('protein') }}>🥩 {Math.round(p)}g</span>
                              <span className="text-[11px] font-bold" style={{ color: getMacroColor('carbs') }}>🥖 {Math.round(c)}g</span>
                              <span className="text-[11px] font-bold" style={{ color: getMacroColor('fat') }}>🥑 {Math.round(f)}g</span>
+                             {Number(snap?.fiber_g) > 0 && (
+                               <span className="text-[11px] font-bold" style={{ color: getMacroColor('fiber') }}>🥬 {Number(snap?.fiber_g).toFixed(1)}g</span>
+                             )}
                              <span className="text-[11px] font-medium text-outline/40">• {item.grams}g</span>
                           </div>
                         </div>

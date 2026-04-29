@@ -285,11 +285,12 @@ export default function LogEntryForm() {
                     )}
                   </div>
                   {nut && (
-                    <div className="grid grid-cols-4 gap-2 mt-2 pt-2 border-t border-surface-container">
+                    <div className="grid grid-cols-5 gap-2 mt-2 pt-2 border-t border-surface-container">
                       <div className="flex flex-col"><span className="label-sm text-outline">Kcal</span><span className="font-medium">{nut.kcal}</span></div>
-                      <div className="flex flex-col"><span className="label-sm text-outline text-secondary">🥩 Protein</span><span className="font-medium">{nut.protein_g}g</span></div>
-                      <div className="flex flex-col"><span className="label-sm text-outline text-primary">🥑 Fett</span><span className="font-medium">{nut.fat_g}g</span></div>
-                      <div className="flex flex-col"><span className="label-sm text-outline">🥖 Carbs</span><span className="font-medium">{nut.carbs_g}g</span></div>
+                      <div className="flex flex-col"><span className="label-sm" style={{ color: 'var(--tertiary)' }}>🥩 Protein</span><span className="font-medium">{nut.protein_g}g</span></div>
+                      <div className="flex flex-col"><span className="label-sm" style={{ color: '#0d9488' }}>🥑 Fett</span><span className="font-medium">{nut.fat_g}g</span></div>
+                      <div className="flex flex-col"><span className="label-sm" style={{ color: '#d97706' }}>🥖 Carbs</span><span className="font-medium">{nut.carbs_g}g</span></div>
+                      <div className="flex flex-col"><span className="label-sm" style={{ color: '#16a34a' }}>🥬 Ballaststoffe</span><span className="font-medium">{nut.fiber_g ?? 0}g</span></div>
                     </div>
                   )}
                 </div>
