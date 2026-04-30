@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   title: "Calorie Tracker",
   description: "Personal nutrition and calorie tracker",
   manifest: "/calorie-tracker/manifest.json",
+  icons: {
+    icon: "/calorie-tracker/icon.png",
+    apple: "/calorie-tracker/icon.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
