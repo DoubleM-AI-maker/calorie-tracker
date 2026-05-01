@@ -18,7 +18,7 @@ export async function processLogEntry(
   prevState: ExtractionResultState,
   formData: FormData,
 ): Promise<ExtractionResultState> {
-  let text = formData.get('logText')?.toString() || '';
+  const text = formData.get('logText')?.toString() || '';
   const imageStr = formData.get('imageStr')?.toString();
 
   if (text.trim() === '' && !imageStr) {
