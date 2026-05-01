@@ -1,8 +1,12 @@
 import { Anthropic } from '@anthropic-ai/sdk';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy", 
-});
+let _anthropic: Anthropic | null = null;
+function getAnthropic() {
+  if (!_anthropic) {
+    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  }
+  return _anthropic;
+}
 
 export interface ExtractionItem {
   raw: string;
@@ -98,7 +102,7 @@ export async function extractFoodFromText(input: string, base64Image?: string): 
       text: base64Image ? defaultText : `Input: "${input}"`
     });
 
-    const response = await anthropic.messages.create({
+    const response = await getAnthropic().messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
       temperature: 0.1,
@@ -150,12 +154,12 @@ export async function generateRecipeRecommendations(remaining: { kcal: number, p
   Antworte NUR mit dem JSON. Keine Einleitung, kein Markdown.`;
 
   try {
-    const response = await anthropic.messages.create({
+    const response = await getAnthropic().messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
-      temperature: 0.7, // Higher temperature for variety
+      temperature: 0.7,
       system: prompt,
-      messages: [{ role: 'user', content: "Gib mir Empfehlungen." }],
+      messages: [{ role: 'user', content: 'Gib mir Empfehlungen.' }],
     });
 
     const block = response.content[0];

@@ -2,13 +2,14 @@ import { db } from '@/db';
 import { sql } from 'drizzle-orm';
 import { cache } from 'react';
 import { getBerlinDayRange } from '../date';
+import { DEFAULT_GOAL, type NutrientSnapshot } from '../constants';
 
 export interface RawMealItem {
   id: number;
   meal_id: number;
   food_id: number | null;
   grams: string;
-  nutrients_snapshot: any;
+  nutrients_snapshot: NutrientSnapshot;
 }
 
 export interface RawMeal {
@@ -195,11 +196,11 @@ export async function getHistoryStatsRaw(userId: string, days: number) {
       carbs_g: stat ? Number(stat.carbs_g) : 0,
       fat_g: stat ? Number(stat.fat_g) : 0,
       fiber_g: stat ? Number(stat.fiber_g) : 0,
-      goalKcal: goal?.kcal || 2000,
-      goalProtein: goal?.protein_g || 150,
-      goalCarbs: goal?.carbs_g || 230,
-      goalFat: goal?.fat_g || 65,
-      goalFiber: goal?.fiber_g || 40
+      goalKcal: goal?.kcal || DEFAULT_GOAL.kcal,
+      goalProtein: goal?.protein_g || DEFAULT_GOAL.protein_g,
+      goalCarbs: goal?.carbs_g || DEFAULT_GOAL.carbs_g,
+      goalFat: goal?.fat_g || DEFAULT_GOAL.fat_g,
+      goalFiber: goal?.fiber_g || DEFAULT_GOAL.fiber_g
     });
   }
 

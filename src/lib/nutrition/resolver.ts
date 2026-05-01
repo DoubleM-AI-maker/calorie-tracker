@@ -5,9 +5,13 @@ import { db } from '@/db';
 import { foods } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy", 
-});
+let _anthropic: Anthropic | null = null;
+function getAnthropic() {
+  if (!_anthropic) {
+    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  }
+  return _anthropic;
+}
 
 export interface ResolvedNutrients {
   source: 'off' | 'usda' | 'llm_estimate' | 'custom';
@@ -231,7 +235,7 @@ export async function resolveNutrients(item: ExtractionItem): Promise<ResolvedNu
       "fiber_g": 2.0
     }`;
 
-    const response = await anthropic.messages.create({
+    const response = await getAnthropic().messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 200,
       temperature: 0.1,
