@@ -1,23 +1,34 @@
 'use client';
-import { useActionState, useState, useRef, useEffect } from 'react';
+import { useActionState, useState, useRef, useMemo } from 'react';
 import { processLogEntry, saveMealEntry, transcribeAudioAction } from '../actions';
-import { Loader2, Plus, Check, Mic, Camera, Square, X, Image as ImageIcon, Scan, Search, Edit2, MoreHorizontal } from 'lucide-react';
+import { Loader2, Plus, Check, Mic, Camera, Square, X, Scan, Search, CalendarDays } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { formatBerlinDate } from '@/lib/date';
 
 const BarcodeScanner = dynamic(() => import('./BarcodeScanner'), { ssr: false });
 const FoodSearch = dynamic(() => import('./FoodSearch'), { ssr: false });
 
 export default function LogEntryForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [state, submitAction, isPending] = useActionState(processLogEntry, undefined);
-  
+
+  const { todayStr, yesterdayStr } = useMemo(() => {
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    return { todayStr: formatBerlinDate(now), yesterdayStr: formatBerlinDate(yesterday) };
+  }, []);
+  const initialDate = searchParams.get('date') || todayStr;
+  const [targetDate, setTargetDate] = useState(initialDate);
+
   // Local state for items if we use manual search or want to override the action state
   const [manualItems, setManualItems] = useState<any[] | null>(null);
-  
+
   // Local state for the text field so we can update it from Whisper
   const [logText, setLogText] = useState('');
-  
+
   // Media states
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -159,7 +170,36 @@ export default function LogEntryForm() {
     <div className="flex flex-col gap-8 flex-1">
       {!displayItems && (
         <form ref={formRef} action={submitAction} className="flex flex-col gap-4">
-        
+
+        {/* Date Selector */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <CalendarDays className="w-4 h-4 text-outline shrink-0" />
+          {[
+            { label: 'Heute', value: todayStr },
+            { label: 'Gestern', value: yesterdayStr },
+          ].map(({ label, value }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setTargetDate(value)}
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                targetDate === value
+                  ? 'bg-primary text-on-primary'
+                  : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+          <input
+            type="date"
+            value={targetDate}
+            max={todayStr}
+            onChange={(e) => setTargetDate(e.target.value)}
+            className="px-3 py-1 rounded-full text-xs bg-surface-container-high text-on-surface border-none focus:outline-none focus:ring-1 focus:ring-outline/30 cursor-pointer"
+          />
+        </div>
+
         {/* Hidden inputs to pass data to FormAction */}
         {imageStr && <input type="hidden" name="imageStr" value={imageStr} />}
 
@@ -309,11 +349,15 @@ export default function LogEntryForm() {
             <button 
               type="button" 
               onClick={async () => {
-                await saveMealEntry({ 
-                  items: displayItems, 
-                  rawInput: logText || (manualItems ? 'manual search' : 'ai extraction') 
+                await saveMealEntry({
+                  items: displayItems,
+                  rawInput: logText || (manualItems ? 'manual search' : 'ai extraction'),
+                  targetDate,
                 });
-                router.push('/tagebuch');
+                const destination = targetDate !== todayStr
+                  ? `/tagebuch?date=${targetDate}`
+                  : '/tagebuch';
+                router.push(destination);
               }}
               className="flex items-center gap-2 bg-on-surface text-surface px-6 py-2 rounded-full font-medium transition-transform hover:scale-[1.02] shadow-ambient"
             >

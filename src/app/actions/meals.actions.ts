@@ -5,13 +5,15 @@ import { meals, mealItems, users } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { getUserId, getUserEmail } from '@/lib/auth';
-import { getBerlinCurrentSlot } from '@/lib/date';
+import { getBerlinCurrentSlot, getBerlinNoonForDate, formatBerlinDate } from '@/lib/date';
 import type { ResolvedItem } from './extraction.actions';
 import type { NutrientSnapshot } from '@/lib/constants';
 
 interface SaveMealData {
   rawInput?: string;
   items: ResolvedItem[];
+  /** YYYY-MM-DD in Berlin timezone. Defaults to today when omitted. */
+  targetDate?: string;
 }
 
 async function ensureUserExists(userId: string, email: string) {
@@ -28,10 +30,15 @@ export async function saveMealEntry(mealData: SaveMealData) {
   try {
     await ensureUserExists(userId, email);
 
+    const todayStr = formatBerlinDate(new Date());
+    const isToday = !mealData.targetDate || mealData.targetDate === todayStr;
     const slot = getBerlinCurrentSlot();
+    const timestamp = isToday ? new Date() : getBerlinNoonForDate(mealData.targetDate!);
+
     const [newMeal] = await db.insert(meals).values({
       userId,
       slot,
+      timestamp,
       rawInput: typeof mealData.rawInput === 'string' ? mealData.rawInput : 'manual entry',
     }).returning();
 
