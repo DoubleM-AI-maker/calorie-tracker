@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import BottomNav from "./components/BottomNav";
-import GlobalDarkModeToggle from "./components/GlobalDarkModeToggle";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -43,9 +42,6 @@ export default function RootLayout({
   return (
     <html lang="de" className={`${inter.variable}`}>
       <body className="min-h-full flex flex-col font-sans bg-surface text-on-surface antialiased">
-        <div className="fixed top-6 right-6 z-50">
-          <GlobalDarkModeToggle />
-        </div>
         {children}
         <BottomNav />
       </body>
