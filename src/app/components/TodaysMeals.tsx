@@ -9,6 +9,7 @@ import { getUserId } from '@/lib/auth';
 import { getBerlinDayRange } from '@/lib/date';
 import { getMealsForDayRaw, getStatsForDayRaw, RawMeal } from '@/lib/db/queries';
 import { Coffee, Utensils, MoonStar, Cookie, MoreVertical, Trash2, Edit2 } from 'lucide-react';
+import { DEFAULT_GOAL } from '@/lib/constants';
 
 const SLOT_LABELS: Record<string, string> = {
   breakfast: 'Frühstück',
@@ -46,11 +47,11 @@ export default async function DayMeals({ date }: { date?: string }) {
   let totalCarbs = 0;
   let totalFat = 0;
   let totalFiber = 0;
-  let goalKcal = 2000;
-  let goalProtein = 150;
-  let goalCarbs = 230;
-  let goalFat = 65;
-  let goalFiber = 40;
+  let goalKcal = DEFAULT_GOAL.kcal;
+  let goalProtein = DEFAULT_GOAL.protein_g;
+  let goalCarbs = DEFAULT_GOAL.carbs_g;
+  let goalFat = DEFAULT_GOAL.fat_g;
+  let goalFiber = DEFAULT_GOAL.fiber_g;
   let dbError = false;
   let mealList: RawMeal[] = [];
 
@@ -58,10 +59,10 @@ export default async function DayMeals({ date }: { date?: string }) {
     const { goal, consumed } = await getStatsForDayRaw(userId, date);
     if (goal) {
       goalKcal = goal.kcal;
-      goalProtein = goal.protein_g || 150;
-      goalCarbs = goal.carbs_g || 230;
-      goalFat = goal.fat_g || 65;
-      goalFiber = goal.fiber_g ?? 40;
+      goalProtein = goal.protein_g || DEFAULT_GOAL.protein_g;
+      goalCarbs = goal.carbs_g || DEFAULT_GOAL.carbs_g;
+      goalFat = goal.fat_g || DEFAULT_GOAL.fat_g;
+      goalFiber = goal.fiber_g ?? DEFAULT_GOAL.fiber_g;
     }
     
     totalKcal = consumed.kcal;

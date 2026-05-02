@@ -6,9 +6,7 @@ import RecipeRecommendations from './RecipeRecommendations';
 import { getUserId } from '@/lib/auth';
 import { getBerlinDayRange } from '@/lib/date';
 import { getStatsForDayRaw } from '@/lib/db/queries';
-
-// Default fallback goal if no goal profile is set yet
-const DEFAULT_GOAL = { kcal: 2000, protein_g: 150, fat_g: 65, carbs_g: 230, fiber_g: 40 };
+import { DEFAULT_GOAL } from '@/lib/constants';
 
 export default async function DailyDashboard({ date }: { date?: string }) {
   const userId = await getUserId();

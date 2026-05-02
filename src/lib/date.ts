@@ -52,6 +52,15 @@ export function getBerlinDayRange(date?: Date | string) {
 }
 
 /**
+ * Returns a Date representing noon (12:00) on the given YYYY-MM-DD string in Berlin timezone.
+ * Used when logging meals for past dates so they fall within the correct Berlin day.
+ */
+export function getBerlinNoonForDate(dateStr: string): Date {
+  const { start } = getBerlinDayRange(dateStr);
+  return new Date(start.getTime() + 12 * 60 * 60 * 1000);
+}
+
+/**
  * Returns the current slot based on Berlin time
  */
 export function getBerlinCurrentSlot(): 'breakfast' | 'lunch' | 'dinner' | 'snack' {

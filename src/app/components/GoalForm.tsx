@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { updateGoalsAction } from '../actions';
+import { DEFAULT_GOAL } from '@/lib/constants';
 
 interface GoalProfile {
   kcal: number;
@@ -12,11 +13,11 @@ interface GoalProfile {
 }
 
 export default function GoalForm({ initial }: { initial?: GoalProfile }) {
-  const [kcal, setKcal] = useState(initial?.kcal || 2000);
-  const [protein, setProtein] = useState(initial?.proteinG || 150);
-  const [fat, setFat] = useState(initial?.fatG || 65);
-  const [carbs, setCarbs] = useState(initial?.carbsG || 200);
-  const [fiber, setFiber] = useState(initial?.fiberG || 40);
+  const [kcal, setKcal] = useState(initial?.kcal || DEFAULT_GOAL.kcal);
+  const [protein, setProtein] = useState(initial?.proteinG || DEFAULT_GOAL.protein_g);
+  const [fat, setFat] = useState(initial?.fatG || DEFAULT_GOAL.fat_g);
+  const [carbs, setCarbs] = useState(initial?.carbsG || DEFAULT_GOAL.carbs_g);
+  const [fiber, setFiber] = useState(initial?.fiberG || DEFAULT_GOAL.fiber_g);
   
   const [mode, setMode] = useState<'grams' | 'percent'>('grams');
   const [isPending, startTransition] = useTransition();
