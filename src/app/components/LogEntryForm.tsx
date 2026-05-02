@@ -5,11 +5,18 @@ import { Loader2, Plus, Check, Mic, Camera, Square, X, Scan, Search, CalendarDay
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { formatBerlinDate } from '@/lib/date';
+import QuickLogFavorites from './QuickLogFavorites';
 
 const BarcodeScanner = dynamic(() => import('./BarcodeScanner'), { ssr: false });
 const FoodSearch = dynamic(() => import('./FoodSearch'), { ssr: false });
 
-export default function LogEntryForm() {
+interface FavoriteRecord {
+  id: number;
+  label: string;
+  grams: string | null;
+}
+
+export default function LogEntryForm({ initialFavorites = [] }: { initialFavorites?: FavoriteRecord[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [state, submitAction, isPending] = useActionState(processLogEntry, undefined);
@@ -365,6 +372,12 @@ export default function LogEntryForm() {
               <span>Bestätigen & Speichern</span>
             </button>
           </div>
+        </div>
+      )}
+
+      {!displayItems && initialFavorites.length > 0 && (
+        <div className="mt-2">
+          <QuickLogFavorites favorites={initialFavorites} targetDate={targetDate} />
         </div>
       )}
 

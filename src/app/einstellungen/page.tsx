@@ -5,6 +5,7 @@ import { getUserId, getUserEmail } from '@/lib/auth';
 import GoalForm from '../components/GoalForm';
 import AliasList from '../components/AliasList';
 import { User, Target, Brain, BarChart3, Database, ShieldCheck, Zap } from 'lucide-react';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 export default async function EinstellungenPage() {
   const userId = await getUserId();
@@ -51,6 +52,9 @@ export default async function EinstellungenPage() {
         
         {/* Header */}
         <header className="flex flex-col gap-2">
+          <div className="flex justify-end">
+            <DarkModeToggle />
+          </div>
           <h1 className="headline-lg">Profil & Ziele</h1>
           <p className="body-md text-outline">Verwalte deine Identität, deine körperlichen Ziele und die KI-Intelligenz.</p>
         </header>

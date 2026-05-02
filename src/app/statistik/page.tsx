@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import WeeklyStatistics from '@/app/components/WeeklyStatistics';
 import MonthlyStatistics from '@/app/components/MonthlyStatistics';
+import DarkModeToggle from '@/app/components/DarkModeToggle';
 
 export default function StatistikPage({
   searchParams,
@@ -18,6 +19,9 @@ export default function StatistikPage({
 
       <div className="w-full max-w-xl z-10 flex flex-col gap-6">
         <header className="flex flex-col gap-2">
+          <div className="flex justify-end">
+            <DarkModeToggle />
+          </div>
           <p className="label-sm text-outline uppercase tracking-wider">Trend & Analyse</p>
           <h1 className="headline-lg">Statistik</h1>
         </header>

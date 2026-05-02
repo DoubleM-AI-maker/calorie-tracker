@@ -5,7 +5,7 @@ import { meals, mealItems, favorites, foods } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { getUserId } from '@/lib/auth';
-import { getBerlinCurrentSlot } from '@/lib/date';
+import { getBerlinCurrentSlot, getBerlinNoonForDate, formatBerlinDate } from '@/lib/date';
 import type { NutrientSnapshot } from '@/lib/constants';
 
 export async function toggleFavoriteAction(foodId: number, grams: number, label: string) {
@@ -40,7 +40,7 @@ export async function toggleFavoriteAction(foodId: number, grams: number, label:
   }
 }
 
-export async function quickLogFavoriteAction(favoriteId: number) {
+export async function quickLogFavoriteAction(favoriteId: number, targetDate?: string) {
   const userId = await getUserId();
   try {
     const fav = await db.query.favorites.findFirst({
@@ -66,9 +66,15 @@ export async function quickLogFavoriteAction(favoriteId: number) {
     };
 
     const slot = getBerlinCurrentSlot();
+    const todayStr = formatBerlinDate(new Date());
+    const timestamp = !targetDate || targetDate === todayStr
+      ? new Date()
+      : getBerlinNoonForDate(targetDate);
+
     const [newMeal] = await db.insert(meals).values({
       userId,
       slot,
+      timestamp,
       rawInput: `Quick-Log: ${fav.label}`,
     }).returning();
 

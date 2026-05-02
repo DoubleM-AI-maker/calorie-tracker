@@ -3,8 +3,8 @@ import DayMeals from '../components/TodaysMeals';
 import Link from 'next/link';
 import { formatBerlinDate, getBerlinDayRange } from '@/lib/date';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
-
 import ClientDateSelector from '../components/ClientDateSelector';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 export default async function TagebuchPage({
   searchParams,
@@ -37,30 +37,35 @@ export default async function TagebuchPage({
       <div className="w-full max-w-xl flex flex-col gap-6 z-10">
 
         {/* Header/Date Selector */}
-        <div className="flex items-center justify-between w-full pt-2 pb-6">
-          <Link 
-            href={`/tagebuch?date=${prevStr}`}
-            className="text-sm font-semibold text-outline/30 hover:text-outline transition-colors"
-          >
-            Gestern
-          </Link>
-          
-          <div className="flex flex-col items-center gap-0.5">
-             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
-               {isToday ? 'HEUTE' : dayName}
-             </span>
-             <div className="flex items-center gap-1">
-               <span className="text-xl font-bold tracking-tight">{dateStrFormatted}</span>
-               <ClientDateSelector currentDate={dateStr} />
-             </div>
+        <div className="flex flex-col gap-3 pt-2 pb-4">
+          <div className="flex justify-end">
+            <DarkModeToggle />
           </div>
+          <div className="flex items-center justify-between w-full">
+            <Link
+              href={`/tagebuch?date=${prevStr}`}
+              className="text-sm font-semibold text-outline/30 hover:text-outline transition-colors"
+            >
+              Gestern
+            </Link>
 
-          <Link 
-            href={`/tagebuch?date=${nextStr}`}
-            className="text-sm font-semibold text-outline/30 hover:text-outline transition-colors"
-          >
-            Morgen
-          </Link>
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+                {isToday ? 'HEUTE' : dayName}
+              </span>
+              <div className="flex items-center gap-1">
+                <span className="text-xl font-bold tracking-tight">{dateStrFormatted}</span>
+                <ClientDateSelector currentDate={dateStr} />
+              </div>
+            </div>
+
+            <Link
+              href={`/tagebuch?date=${nextStr}`}
+              className="text-sm font-semibold text-outline/30 hover:text-outline transition-colors"
+            >
+              Morgen
+            </Link>
+          </div>
         </div>
 
         {/* Meals for selected day */}

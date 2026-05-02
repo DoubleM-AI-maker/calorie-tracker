@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import DailyDashboard from "@/app/components/DailyDashboard";
 import FavoritesSection from "@/app/components/FavoritesSection";
+import DarkModeToggle from "@/app/components/DarkModeToggle";
 
 export default function Home() {
   return (
@@ -11,6 +12,10 @@ export default function Home() {
       <div className="absolute bottom-0 left-0 -m-32 w-96 h-96 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-xl flex flex-col gap-6 z-10">
+
+        <header className="flex justify-end">
+          <DarkModeToggle />
+        </header>
 
         {/* Calorie Dashboard */}
         <Suspense fallback={
